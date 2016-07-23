@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (MiKTeX 2.9) (preloaded format=pdflatex 2016.3.27)  20 JUL 2016 22:42
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (MiKTeX 2.9) (preloaded format=pdflatex 2016.3.27)  23 JUL 2016 07:37
 entering extended mode
 **./report.tex
 (report.tex
@@ -322,23 +322,33 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 ("C:\Users\lucas_000\AppData\Local\Programs\MiKTeX 2.9\tex\latex\psnfss\courier
 .sty"
 Package: courier 2005/04/12 PSNFSS-v9.2a (WaS) 
+)
+("C:\Users\lucas_000\AppData\Local\Programs\MiKTeX 2.9\tex\latex\graphics\color
+.sty"
+Package: color 2014/10/28 v1.1a Standard LaTeX Color (DPC)
+
+("C:\Users\lucas_000\AppData\Local\Programs\MiKTeX 2.9\tex\latex\00miktex\color
+.cfg"
+File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
+)
+Package color Info: Driver file: pdftex.def on input line 142.
 ) (report.aux)
 \openout1 = `report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -391,7 +401,7 @@ f.mkii"
 \everyMPtoPDFconversion=\toks28
 )
 \AtBeginShipoutBox=\box29
-Package hyperref Info: Link coloring OFF on input line 12.
+Package hyperref Info: Link coloring OFF on input line 13.
 
 ("C:\Users\lucas_000\AppData\Local\Programs\MiKTeX 2.9\tex\latex\hyperref\namer
 ef.sty"
@@ -403,26 +413,26 @@ Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
 \c@section@level=\count119
 )
-LaTeX Info: Redefining \ref on input line 12.
-LaTeX Info: Redefining \pageref on input line 12.
-LaTeX Info: Redefining \nameref on input line 12.
+LaTeX Info: Redefining \ref on input line 13.
+LaTeX Info: Redefining \pageref on input line 13.
+LaTeX Info: Redefining \nameref on input line 13.
  (report.out) (report.out)
 \@outlinefile=\write3
 \openout3 = `report.out'.
 
-LaTeX Font Info:    Try loading font information for U+msa on input line 14.
+LaTeX Font Info:    Try loading font information for U+msa on input line 15.
 
 ("C:\Users\lucas_000\AppData\Local\Programs\MiKTeX 2.9\tex\latex\amsfonts\umsa.
 fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 14.
+LaTeX Font Info:    Try loading font information for U+msb on input line 15.
 
 ("C:\Users\lucas_000\AppData\Local\Programs\MiKTeX 2.9\tex\latex\amsfonts\umsb.
 fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Try loading font information for OT1+pcr on input line 14.
+LaTeX Font Info:    Try loading font information for OT1+pcr on input line 15.
 
 ("C:\Users\lucas_000\AppData\Local\Programs\MiKTeX 2.9\tex\latex\psnfss\ot1pcr.
 fd"
@@ -434,24 +444,24 @@ File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
  [1
 
 {C:/Users/lucas_000/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] [2]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 68.
- [3]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 68.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 91.
+ [3] [4]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 91.
  (report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 68.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 68.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 91.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 91.
 Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: 2A041F7743FB12F16E0AB6FB57125E53;1231.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 68.
+(rerunfilecheck)             Checksum: 892C48D7A2410E701DEF9E2BD1C9D3FD;1238.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 91.
  ) 
 Here is how much of TeX's memory you used:
- 6534 strings out of 493634
- 95092 string characters out of 3133607
- 186997 words of memory out of 3000000
- 9820 multiletter control sequences out of 15000+200000
+ 6581 strings out of 493634
+ 95912 string characters out of 3133607
+ 186946 words of memory out of 3000000
+ 9860 multiletter control sequences out of 15000+200000
  12879 words of font info for 50 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
- 29i,7n,43p,525b,352s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 29i,7n,43p,654b,352s stack positions out of 5000i,500n,10000p,200000b,50000s
 {C:/Users/lucas_000/AppData/Local/Programs/MiKTeX 2.9/fonts/enc/dvips/fontnam
 e/8r.enc}<C:/Users/lucas_000/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/publ
 ic/amsfonts/cm/cmbx10.pfb><C:/Users/lucas_000/AppData/Local/Programs/MiKTeX 2.9
@@ -466,9 +476,9 @@ Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/lucas_0
 00/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb>
 <C:/Users/lucas_000/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/urw/courier/u
 crr8a.pfb>
-Output written on report.pdf (3 pages, 146979 bytes).
+Output written on report.pdf (4 pages, 152294 bytes).
 PDF statistics:
- 170 PDF objects out of 1000 (max. 8388607)
- 25 named destinations out of 1000 (max. 500000)
+ 177 PDF objects out of 1000 (max. 8388607)
+ 28 named destinations out of 1000 (max. 500000)
  161 words of extra memory for PDF output out of 10000 (max. 10000000)
 

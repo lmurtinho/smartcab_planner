@@ -5,6 +5,7 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{courier}
+\usepackage{color}
 
 \title{MLEND Capstone Project: Training a Smartcab Planner}
 \author{Lucas Murtinho \\ \url{lucas.murtinho@gmail.com}}
@@ -26,13 +27,7 @@ A natural extension of this project is, instead of relying on an outside planner
 
 \subsection{Problem Statement}
 
-The problem at hand is to program an agent that learns to identify what the next waypoint should be for a smartcab in a grid-like world to reach its destination as fast as possible.
-
-In a grid-like world, each position is defined by an $(i, j)$ tuple, in whic $i$ is the longitude (the position across the East-West axis) and $j$ is the latitude (the position across the North-South axis). In a $m\times n$ grid, $(1, 1)$ represents the northwesternmost position, while $(m, n)$ represents the southeasternmost position.
-
-The goal, then, is that, given a position tuple $(i_{cab}, j_{cab})$, a destination tuple $(i_{dest}, j_{dest})$, and a heading (described below), the planner should be able to come up with the best next action for the smartcab: \texttt{forward}, \texttt{right}, or \texttt{left}. 
-
-I'll use an $8\times6$ grid for the project, similar to the one used for the Nanodegree Project 4, but in principle the solution should apply to a grid of any size.
+The problem at hand is to program an agent that learns to identify what the next waypoint should be for a smartcab in a grid-like world to reach its destination as fast as possible. I'll use an $8\times6$ grid for the project, similar to the one used for the Nanodegree Project 4, but in principle the solution should apply to a grid of any size.
 
 
 \subsection{Metrics}
@@ -48,7 +43,25 @@ Finally, I'll also keep track of the sum of rewards received by the agent. Howev
 
 \subsection{Input Space Description}
 
+In Project 4 of Udacity's Machine Learning nanodegree, the world in which the smartcab existed was represented by a graphical $8\times6$ grid rendered in Pygame. I'll use an image of that world in the \hyperref[sec:explovis]{next section}, but for now I'll describe the problem's input space abstractly.
+
+In the grid-like world of the smartcab, each position is defined by an $(i, j)$ tuple, in which $i$ is the longitude (the position across the East-West axis) and $j$ is the latitude (the position across the North-South axis). In a $m\times n$ grid, $(1, 1)$ represents the northwesternmost position, while $(m, n)$ represents the southeasternmost position.
+
+The goal, then, is that, given a position tuple $(i_{cab}, j_{cab})$, a destination tuple $(i_{dest}, j_{dest})$, and a heading (described below), the planner should be able to come up with the best next action for the smartcab: \texttt{forward}, \texttt{right}, or \texttt{left}. 
+
+The results of an action taken by the smartcab depends on its heading. The heading is a tuple $(i_{head}, j_{head})$, whose items represent East-West heading and North-South heading, respectively. The heading tuple must obey the following rules to be valid:
+
+\begin{enumerate}
+   \item The value of a tuple element indicates how the smartcab will move along the element's axis if it moves forward. This value can be either -1, 1, or 0.
+   \item If the first element of the tuple is non-zero, the second element is zero and vice-versa. (This means the smartcab can only be headed in one direction at a time.)
+\end{enumerate}
+
+From these rules we can surmise there are four valid headings: $\{(1, 0), (-1, 0), (0, 1), (0, -1)\}$. These headings indicate the smartcab is turned East, West, South, and North, respectively.
+ 
+Therefore, if the smartcab is at position $(i_{cab}, j_{cab})$ and moves forward, at the next step it will be at position $(i_{cab} + i_{head}, j_{cab} + j_{head})$ - with an important exception: the grid world is \textit{toroidal}, which means going "over the border" will bring the smartcab to the other side. If the smartcab is headed East at the eastnorthernmost position $(8, 1)$ in an $8\times6$ grid, for instance, moving forward will bring it to the westnorthernmost position $(1, 1)$. The more general formula for the smartcab's position at the next step after moving forward is therefore \textcolor{red}{COMPLETE}
+
 \subsection{Exploratory Visualization}
+\label{sec:explovis}
 \subsection{Algorithm and Techniques}
 \label{sec:algos}
 \subsection{Benchmark}
@@ -73,6 +86,7 @@ Finally, I'll also keep track of the sum of rewards received by the agent. Howev
 \textit{Does agent consider if it's easier to turn right or left (or go forward)?}
 \subsection{Improvement}
 \textit{Improvement: put planner and smartcab together to learn how to play around traffic or red lights}
-\textit{Improvement: modify get_distance code to consider modular arithmetics}
+\textit{Improvement: modify get\_distance code to consider modular arithmetics}
+\textit{Modification: what if the grid world is not toroidal?}
 \end{document}
 
