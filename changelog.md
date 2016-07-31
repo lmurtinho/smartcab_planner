@@ -1,0 +1,16 @@
+- First version 
+  - learning planner designed as two functions, `learning_planner(state, qvals, initial_val)` and `basic_qval_update(qvals, qval_infos, t)`
+  - functions used within the `simulate` function
+  - `qval_infos` = experience tuple
+  - Hardcoded parameters:
+    - learning rate = 1.0 / (1 + t)
+    - discount rate = 0.5
+    - initial values = 0
+- Second version
+  - World defined in `PlannerWorld` class
+  - Planner defined in `Planner` class and random, perfect, and learner subclasses
+  - Experience tuple named `experience`
+- Third version
+  - Optimism in the face of uncertainty: reward initialized as 1 (but goes to 0 when updating value)
+  - Softer learning rate decay: 1.0 / log(1 + t)
+  - AMAZING RESULTS!
