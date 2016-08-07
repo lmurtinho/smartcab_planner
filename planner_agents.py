@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Jul 29 13:28:45 2016
-
-@author: zsj7
-"""
-
 import random
 
 POSSIBLE_ACTIONS = ('forward', 'left', 'right')
 
 class Planner():
+    """
+    Basic Planner class.
+    """
     def __init__(self, initial_val=0, disc_rate=0.5, 
                  learn_rate_func= lambda x: 1.0 / (x + 1)):
         self.initial_val = initial_val
@@ -41,11 +38,17 @@ class Planner():
         self.qvals[(state, action)] = update_qval
 
 class RandomPlanner(Planner):
+    """
+    A planner that takes actions at random.
+    """
     
     def policy(self, state):
         return random.choice(self.possible_actions)
  
 class PerfectPlanner(Planner):
+    """
+    A planner that always takes the best possible action.
+    """
 
     def policy(self, state):
         """
@@ -76,6 +79,9 @@ class PerfectPlanner(Planner):
                 return 'left'
 
 class LearningPlanner(Planner):
+    """
+    A planner that learns a policy over time.
+    """
     
     def policy(self, state):
         # get the value of each action given the

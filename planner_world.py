@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-"""
-
 import pandas as pd
 import random
 
 class PlannerWorld():
+    """
+    The world (a toroidal grid) in which the planners operate.
+    """
     
     def __init__(self, grid_size=(8, 6), trials=1000, deadline=100):
         self.grid_size = grid_size
