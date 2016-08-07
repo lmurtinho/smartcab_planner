@@ -6,6 +6,6 @@ This project was heavily inspired by the nanodegree's Project 4, Teach a Smartca
 
 To check the results of the project, run the notebook `smartcab_planner.ipynb`, which will use the functions and classes defined in the .py files:
 
-- `PlannerWorld`: The class that implements the world (an $8\times6$ toroidal grid) in which the planner agent operates
+- `PlannerWorld`: The class that implements the world (an 8x6 toroidal grid) in which the planner agent operates
 - `RandomPlanner`, `PerfectPlanner`, `LeraningPlanner`: different types of planner that operate in the planner world
 - `sim_all_planners`: a function that outputs the results of running the planner world with different planners, one at a time
