@@ -6,8 +6,9 @@
 \usepackage{hyperref}
 \usepackage{courier}
 \usepackage{color}
+\usepackage{array}
 
-\title{MLEND Capstone Project: Training a Smartcab Planner}
+\title{Machine Learning Nanodegree Capstone Project:\\Training a Smartcab Planner}
 \author{Lucas Murtinho \\ \url{lucas.murtinho@gmail.com}}
 \date{\today}
 \begin{document}
@@ -20,7 +21,7 @@
 
 \subsection{Project Overview}
 
-In Project 4 of Udacity's Machine Learning Engineer Nanodegree, I had to teach a smartcab in grid-like world how to get to a destination on time by obeying traffic rules and following the directions passed by a planner. Without any kind of hard programming, the agent should learn right-of-way rules and to go straight when the planner sent a "forward" input, for instance.
+In Project 4 of Udacity's Machine Learning Engineer Nanodegree, I had to teach a smartcab in a grid-like world how to get to a destination on time by obeying traffic rules and following the directions passed by a planner. Without any "hardcode", the agent should learn right-of-way rules and to go straight when the planner sent a "forward" input, for instance.
 
 A natural extension of this project is, instead of relying on an outside planner, coming up with an agent that, given the smartcab's location and destination, learns how to plan a route. This is the goal of my capstone project.
 
@@ -29,6 +30,13 @@ A natural extension of this project is, instead of relying on an outside planner
 
 The problem at hand is to program an agent that learns to identify what the next waypoint should be for a smartcab in a grid-like world to reach its destination as fast as possible. I'll use an $8\times6$ grid for the project, similar to the one used for the Nanodegree Project 4, but in principle the solution should apply to a grid of any size.
 
+It is possible to solve this problem through ``hardcoding'' --- i.e., by developing a function that takes as inputs the smartcab's location, heading, and destination, and returns the next move the agent should perform. This is, in fact, how the \href{https://github.com/udacity/machine-learning/blob/77ca1180cf1251d03dd07b590c91d384d4c18064/projects/smartcab/smartcab/planner.py}{provided planner} from the Nanodegree's project 4 works, and it is also how I programmed the ``perfect planner'' described in the \hyperref[sec:benchmark]{Benchmark section} below.
+However, here I am interested in accomplish the same task through reinforcement learning, or, more specifically, $Q$-learning (see the \hyperref[sec:algos]{Algorithms and Techniques section} below for an explanation of this family of algorithms). 
+
+In this setting, the program is an agent that operates in a world defined by the \hyperref[sec:plannerworld]{\texttt{PlannerWorld} class}. Upon performing an \textit{action} in a given \textit{state} of the world, the agent receives from the environment a \textit{reward}, which is used to modify the agent's \textit{policy}, or the function that returns an action given a state.
+
+The goal of this project is to implement a learning agent such as the one described above that can learn a feasible policy over time. An additional is to implement through reinforcement learning not only a feasible policy but an optimal one --- that is, to create a learning agent whose behavior, after some exploration time, is indistinguishable from the perfect planner's. 
+
 
 \subsection{Metrics}
 \label{sec:metrics}
@@ -36,25 +44,19 @@ The problem at hand is to program an agent that learns to identify what the next
 I used the following metrics to gauge the performance of the learning planner:
 
 \begin{itemize}
-    \item The number of \textbf{destinations reached} over all trials.
-    \item The \textbf{number of steps needed} to reach the destination.
-    \item The \textbf{sum of rewards}  over each trial.
-    \item The number of trials with \textbf{net positive rewards}.
-    \item The number of \textbf{states visited} by the planner.
-
+    \item The number of \textbf{destinations reached} over all trials. I defined a deadline of 100 steps for the agent to reach its destinations, which is more than enough steps in an $8\times6$ toroidal grid. Therefore, reaching the destination within the deadline after a number of exploratory steps are taken is a very low bar for any learning agent to clear.
+    \item The \textbf{number of steps needed} to reach the destination. This is a more demanding metric: a perfect planner, for instance, will need no more than 7 steps to reach its destination in a grid world such as the one I devised.\footnote{Since the agent can ``go around the world'', it will need at most $(m+n)/2$ steps to reach any destination.} However, the minimum number of steps at any given trial will vary according to the agent's initial position relative to its destination.
+    \item The \textbf{sum of rewards} over each trial. The reward structure of the world is defined in the \hyperref[sec:plannerworld]{\texttt{PlannerWorld} class} and it must be well defined for the agent to learn the desired policy. Accumulating rewards is the ultimate goal of the agent; if it can get a large sum of rewards without achieving an optimal policy, either the learning algorithm or the reward structure should be reexamined. 
+    \item The number of trials with \textbf{net positive rewards}. Again, the main goal here is to verify whether the reward structure is consistent with the agent's desired behavior.
+    \item The number of \textbf{states visited} by the agent. As full an exploration of the state space is desirable, since this means the agent has acquired sufficient knowledge of the world for it to operate in the desired fashion. Once again, if the agent has explored much of the world but its policy does not approximate the perfect planner's, the learning algorithm or the structure reward must be reviewed.
 \end{itemize}
 
-I computed these metrics over 1000 trials, setting the deadline to 100 steps for each trial. In an $8\times6$ grid, this number of steps is largely sufficient for any reasonable planner to have the agent reach its destination.
-
-It's worth noting that some of these metrics are a means to an end. Ultimately, a successful planner is one that leads the agent to its destination in the shortest number of steps. Therefore, we can consider the number of destinations reached and the time left when the agent reached its destination as \textit{first-order metrics}, which are directly measuring what we want the planner to achieve.
-
-On the other hand, metrics pertaining to the sum of rewards received by the planner during the trials are \textit{second-order metrics}, since the rewards' only purpose is to push the agent towards the desired behavior. Such metrics may indicate a problem in our algorithm: if the rewards are largely positive but the agent fails to reach its destination, or does so through a non-optimal path, we may have to change how rewards are defined.
-
-The number oF states visited falls somewhere between these two categories of metrics. One could argue that a successful planner is also one with an extensive knowledge of the state space, since otherwise the agent can be ``caught by surprise'' in later trials, when it reaches a previously unknown state. 
+I computed these metrics over 2000 trials for each of the planners presented in this report.
 
 \section{Analysis}
 
 \subsection{Input Space Description}
+\label{sec:input}
 
 In Project 4 of Udacity's Machine Learning nanodegree, the world in which the smartcab existed was represented by a graphical $8\times6$ grid rendered in Pygame. I'll use an image of that world in the \hyperref[sec:explovis]{next section}, but for now I'll describe the problem's input space abstractly.
 
@@ -84,6 +86,7 @@ The more general formula for the smartcab's position at the next step after movi
 The above expression is used to update the smartcab's location in the current version of the environment class used for project 4 (see \href{https://github.com/udacity/machine-learning/blob/2b6a7fca8ea43e00519f426a6b4ad3a130fca737/projects/smartcab/smartcab/environment.py#L195-L19}{here}).
 
 \subsubsection{The \texttt{PlannerWorld} Class}
+\label{sec:plannerworld}
 
 To define the input space in which the planner is to operate, I created the \texttt{PlannerWorld} class, with the following attributes and methods:
 
@@ -135,10 +138,10 @@ To define the input space in which the planner is to operate, I created the \tex
 \label{fig:world}
 \includegraphics[width=\textwidth]{planner_world}
 \centering
-\caption{The planner's world. The smartcab is at position $(1, 6)$, facing South, and a forward move would therefore take it to position $(1, 1)$. The destination is at position $(7, 4)$. Due to the toroidal nature of the world, the smartcab's next move should be \textit{right}, taking it to position $(8, 6)$ and 3 moves away from its destination.}
+\textit{\caption{The planner's world. The smartcab is at position $(1, 6)$, facing South, and a forward move would therefore take it to position $(1, 1)$. The destination is at position $(7, 4)$. Due to the toroidal nature of the world, the smartcab's next move should be \textit{right}, taking it to position $(8, 6)$ and 3 moves away from its destination.}}
 \end{figure}
 
-\subsection{Algorithm and Techniques}
+\subsection{Algorithms and Techniques}
 \label{sec:algos}
 \textit{Q-learning description}
 
@@ -223,7 +226,7 @@ The random planner reached its destination in approximately 87.5\% of the trials
     \end{tabular}
 \end{center}
 
-By contrast, the perfect planner always reaches its destination and always nets a positive sum of rewards. It takes at most 7 steps to reach its destination, which makes sense considering the dimensions of the state and its toroidal nature.\footnote{Since the agent can ``go around the world'', it will need at most $(m+n)/2$ steps to reach any destination.}
+By contrast, the perfect planner always reaches its destination and always nets a positive sum of rewards. As mentioned in the \hyperref[sec:metrics]{Metrics section}, it takes at most 7 steps to reach its destination, which makes sense considering the dimensions of the state and its toroidal nature.
 
 One interesting difference between these planners is the number of states visited, much larger for the random planner. This makes sense because, with a perfect planner, there is no exploitation: the correct action will always be taken, so any state involving a wrong action (i.e., an action that leads to an increase of the distance between the agent and its destination) is automatically discarded. This amounts to a significant reduction of the state space the agent will experience, but it does not detract in any way from the agent's performance. 
 
@@ -236,7 +239,10 @@ The only step that may be considered as data processing is the function \texttt{
 
 \subsection{Implementation}
 \label{sec:implementation}
-\textit{Q-learning model (maybe code?) - reward, number of trials, deadline per trial}
+
+Each agent was implemented as a subclass of a basic \texttt{Planner} class. This way, attributes and methods that are common to all planners were implemented only once.
+
+I decided on this implementation after verifying that treating each planner as independent classes or functions would lead to code repetition and potential mistakes. Other than that, no complications arose during the implementation of the project.
 
 \subsubsection{Basic Planner}
 \label{subsec:basic}
@@ -249,15 +255,31 @@ The basic planner is defined in the \texttt{Planner} class, with the following a
     \item \texttt{learn\_rate\_func}: a function that takes the number of steps already taken by the agent as an argument and returns the learning rate to be used in the next update of the $Q$-table. Its default is $1.0 / (x + 1)$, where \texttt{x} is the number of steps taken by the agent.
     \item \texttt{q\_vals}: the $Q$-table, initialized as an empty dictionary.
     \item \texttt{possible\_actions}: a list of the possible actions the agent can perform: \texttt{forward}, \texttt{left}, or \texttt{right}.
-    \item \texttt{update\_qval()}: a method that updates the agent's $Q$-table, in the following way:
+    \newpage
+    \item \texttt{update\_qval()}: a method that updates the agent's $Q$-table:
+    \begin{verbatim}
+def update_qval(self, experience, t):
+"""
+Returns an updated version of the dict
+with Q-values for (state, action) pairs.
+"""
+    # learning rate decreases over time
+    # according to a predefined function
+    learn_rate = self.learn_rate_func(t)
     
-    \begin{itemize}
-        \item The number of steps \texttt{t} (passed to the method as an argument) is passed to \texttt{learn\_rate\_func()} (see above), which returns the learning rate to be used
-        \item The current $Q$-value of the $(state, action)$ pair in the experience tuple (passed to the function as an argument) is retrieved
-        \item The next state in the experience tuple is passed to the planner's \texttt{policy()} method (see below), which returns the next action to be performed.
-        \item The updated $Q$-value for the $(state, action)$ pair is calculated using the $Q$-update function presented in \hyperref[eq:q-update]{equation \ref{eq:q-update}}.
-        \item[] This function could have been implemented only for the learning planner; however, implementing it in the basic planner guarantees that we can check how many states every planner visited.
-    \end{itemize}
+    state, action, reward, next_state = experience
+    # get the current Q-value for the (state, action) pair    
+    current_qval = self.qvals.get((state, action), 0)
+    # get the best action for the next state
+    # given the information in the qvals dict
+    next_action = self.policy(next_state)
+    # update the Q-value for the (state, action) pair    
+    update_qval = (1-learn_rate) * current_qval + \
+    learn_rate * (reward + self.disc_rate * \
+        self.qvals.get((next_state, next_action), 
+                       self.initial_val))
+    self.qvals[(state, action)] = update_qval\end{verbatim}
+    \item[] This function could have been implemented only for the learning planner; however, implementing it in the basic planner guarantees that we can check how many states every planner visited.
 \end{itemize}
 
 \subsubsection{Operating Planners}
@@ -265,9 +287,56 @@ The basic planner is defined in the \texttt{Planner} class, with the following a
 The basic planner described above lacks a \texttt{policy()} method - that is, a method to define the action to be performed given a state. I describe below the policy that defines each type of planner: the perfect and random planners whose results were presented in the \hyperref[sec:benchmark]{Benchmark section}, and the learning planner whose results will be presented in the \hyperref[sec:results]{Results section}.
 
 \begin{itemize}
-    \item \textbf{Random planner}: The policy for this planner consists of randomly picking one of the three possible actions.
-    \item \textbf{Perfect planner}: The policy consists of always picking an action that reduces the Manhattan distance between the agent and its destination.
+    \item \textbf{Random planner}: The policy for this planner consists of randomly picking one of the three possible actions:
+    \begin{verbatim}
+def policy(self, state):
+    return random.choice(self.possible\_actions)\end{verbatim}
+    \item \textbf{Perfect planner}: The policy consists of always picking an action that reduces the Manhattan distance between the agent and its destination:
+\newpage
+    \begin{verbatim}
+def policy(self, state):
+"""
+Returns the best action given the agent's
+position relative to its destination as well as
+its heading.
+"""
+    delta, heading = state
+    # if agent is turned to the east/west axis
+    if heading[0]:
+        # if it needs to go forward, do it
+        if delta[0] * heading[0] > 0:
+            return 'forward'
+        # else check if it needs to go right or left
+        elif delta[1] * heading[0] > 0:
+            return 'right'
+        else:
+            return 'left'
+    # if agent is turned to the north/south axis
+    else:
+        # if it needs to go forward, do it
+        if delta[1] * heading[1] > 0:
+            return 'forward'
+        # else check if it needs to go right or left
+        elif delta[0] * heading[1] < 0:
+            return 'right'
+        else:
+            return 'left'\end{verbatim}
     \item \textbf{Learning planner}: The policy consists of picking one of the best actions according to the $Q$-table. Given a state $s$, the learning planner checks the $Q$-value of all $(state, action)$ pairs for which the state is $s$, and picks the action that maximizes this value, breaking ties randomly.
+    \begin{verbatim}
+def policy(self, state):
+    # get the value of each action given the
+    # current state
+    possible_vals = {action: self.qvals.get((state, action), 
+                                            self.initial_val)
+                     for action in self.possible_actions}
+    
+    # find the actions that yield the largest value
+    best_actions = [action for action in possible_vals.keys()
+                    if possible_vals[action] == \
+                        max(possible_vals.values())]
+    
+    # randomly pick one of the best actions
+    return random.choice(best_actions)\end{verbatim}
 \end{itemize}
 
 
@@ -279,8 +348,6 @@ The refinement of the model involved adjusting the parameters of the $Q$-update 
 \label{sec:results}
 
 The tables below summarize the two learners' performance in a simulation with 2000 trials.
-
-\renewcommand{\arraystretch}{1.25}
 
 \begin{center}
    \begin{tabular}{rll}
@@ -299,7 +366,7 @@ The tables below summarize the two learners' performance in a simulation with 20
     \end{tabular}
 \end{center}
 
-The original learner had very good results, reaching the destination in all trials and netting a positive sum of rewards over 98\% of the time. However, its results are not as good as the perfect planner's; its median sum of rewards is somewhat smaller, for instance, while the median number of steps taken is a little larger. In other words, this learner converges to a good policy, but not a perfect one.
+The original learner, with the learning rate $1.0 / (x + 1)$, had very good results, reaching the destination in all trials and netting a positive sum of rewards over 98\% of the time. However, its results are not as good as the perfect planner's; its median sum of rewards is somewhat smaller, for instance, while the median number of steps taken is a little larger. In other words, this learner converges to a good policy, but not a perfect one.
 
 \begin{center}
    \begin{tabular}{rll}
@@ -318,32 +385,41 @@ The original learner had very good results, reaching the destination in all tria
     \end{tabular}
 \end{center}
 
-The final learner missed its destination in 1 of the 2000 trials simulated, and netted a negative sum of rewards in 7 trials. However, the percentiles of its results are identical to the perfect planner's. This indicates that a simple change in the learning rate decay was sufficient to achieve a perfect planning strategy through reinforcement learning. 
+The final learner, with the learning rate $1.0 / ln(x + 1)$, missed its destination in 1 of the 2000 trials simulated, and netted a negative sum of rewards in 7 trials. However, the percentiles of its results are identical to the perfect planner's. This indicates that a simple change in the learning rate decay was sufficient to achieve a perfect planning strategy through reinforcement learning.
+
+In summary, my original learning agent was able to comfortably beat the random agent, or the ``lower bound'' of the benchmark. But it was still below the benchmark's ``upper bound'', defined by the perfect agent. The final learning agent, on the other hand, does achieve results comparable to the perfect agent's, thus reaching the benchmark's ``upper bound''.
+
+
+\renewcommand{\arraystretch}{1.25}
+
+\begin{center}
+    \begin{tabular}{r{5cm}m{1.5cm}m{1.5cm}m{1.5cm}m{1.5cm}}
+        \multicolumn{5}{c}{\textbf{Results (2000 Trials)}} \\
+        \textbf{Metric} & \textbf{\begin{tabular}[x]{@{}c@{}}Random\\Planner\end{tabular}} & \textbf{Perfect Planner} & \textbf{Original Learner} & \textbf{Final Learner}\\
+        Mean steps taken & 47.9 & 3.7 & 5.7 & 4.1\\
+        Mean sum of rewards & -99.2 & 91.2 & 80.3 & 89.2\\
+        Destinations reached & 1752 & 2000 & 2000 & 1999\\
+        Trials with positive sum of rewards & 741 & 2000 & 1974 & 1993\\
+        States visited & 744 & 244 & 727 & 716\\
+    \end{tabular}
+\end{center}
 
 \section{Conclusion}
-
-\subsection{Free-Form Visualization}
-Figures 2 and 3 show the rolling means over 100 trials of all the planner's results (sum of rewards and steps taken per trial).
 
 \begin{figure}
 \includegraphics[width=\textwidth]{roll_mean_n_steps}
 \centering
-\caption{The rolling means over 100 trials of the number of steps taken at each trial by the planner. Taking more than 7 steps necessarily indicates a less than perfect strategy, since, in an $8\times6$ grid world, any position may be reached from any other in 7 steps or less. A number of steps of 100 - the deadline in the simulation - indicates the destination was not reached.}
+\textit{\caption{The rolling means over 100 trials of the number of steps taken at each trial by the planner. Taking more than 7 steps necessarily indicates a less than perfect strategy, since, in an $8\times6$ grid world, any position may be reached from any other in 7 steps or less.}}
 \end{figure}
 
-\begin{figure}
-\includegraphics[width=\textwidth]{roll_mean_reward_sum}
-\centering
-\caption{The rolling means over 100 trials of the sum of rewards for each trial.}
-\end{figure}
-
-The figures show how each learner's behavior changes over time:
+\subsection{Free-Form Visualization}
+Figure 2 shows the rolling means, over 100 trials, of each planner's number of steps taken per trial. The figure shows how each learner's behavior changes over time:
 
 \begin{itemize}
-    \item The \textbf{perfect planner}'s behavior is the same throughout the trials. This is to be expected, since this instance does not learn from experience. Since the perfect planner always performs an action that leads to the decrease of the distance between the agent and its destination, its behavior is ideal in all trials. The small fluctuations that happen are due to different initial positions of the agent and its destination, which modify the distance between these two points and consequently the number of steps taken by the agent in a given trial, as well as the overall sum of rewards it receives.
-    \item The \textbf{random planner}'s behavior also does not change over time, again because the planner does not learn from experience. But its results fluctuate wildly over time: the random nature of the planner allows for "lucky" or "unlucky" streaks, during which it may seem as if the agent's behavior is improving or worsening. However, there is no trend in the planner's erratic behavior, which remains fluctuating around a stationary value for both the overall sum of rewards and the number of steps taken at each trial.
+    \item The \textbf{perfect planner}'s behavior is the same throughout the trials. This is to be expected, since this instance does not learn from experience. Since the perfect planner always performs an action that leads to the decrease of the distance between the agent and its destination, its behavior is ideal in all trials. The small fluctuations that happen are due to different initial positions of the agent and its destination, which modify the distance between these two points and consequently the number of steps taken by the agent in a given trial.
+    \item The \textbf{random planner}'s behavior also does not change over time, again because the planner does not learn from experience. But its results fluctuate wildly over time: the random nature of the planner allows for "lucky" or "unlucky" streaks, during which it may seem as if the agent's behavior is improving or worsening. However, there is no trend in the planner's erratic behavior, which remains fluctuating around a stationary value for the number of steps taken at each trial.
     \item The \textbf{original learner}'s results improve markedly at the beginning of the simulation, over the first 200 trials or so, and then become stationary slightly below the perfect planner's results. This is in line with what we saw from the statistics of the original planner's results: the planner converges to a good, but suboptimal, behavior.
-    \item The \textbf{final learner}'s results also improve markedly at the beginning of the trial; but they continue to improve, in a smaller rate, until a little after the $500^{th}$ trial they become indistinguishable from the perfect planner's results. This is also in line with my previous analysis of the final learner's statistics: after a while, this learner converges to an optimal policy. 
+    \item The \textbf{final learner}'s results also improve markedly at the beginning of the trial; but they continue to improve, at a smaller rate, until a little after the 500th trial they become indistinguishable from the perfect planner's results. This is also in line with my previous analysis of the final learner's statistics: after a while, this learner converges to an optimal policy. 
 \end{itemize}
 
 \subsection{Reflection}
@@ -360,11 +436,5 @@ In the Machine Learning Engineer's project 4, I had to teach a smartcab to respe
 
 However, the planner I implemented here does not consider what the environment around the smartcab is. Adding this dimension to the planner may improve its results, since the planner may realize, for instance, that an action is better than another because, while both reduce the agent's distance to its destination, only one of them can be performed immediately. This way the agent may be able to escape traffic and red lights.\footnote{For instance, suppose the destination is Northeast of the agent and that the agent is facing North. In this situation, moving forward and turning right would both decrease the agent's distance to its destination. However, if the light is red at the agent's intersection and there's no more traffic, it can only move right. A planner that was aware of the environment around the agent could, in this situation, prefer to tell the smartcab to turn right, an action that can be immediately performed.}
 
-A more prosaic improvement of the project would be leveraging modular arithmetic to write cleaner versions of the planner world's \texttt{get\_delta()} method and the perfect planner's \texttt{policy} method, both of which seem to me unnecessary long and convoluted.
-
-Finally, there are two ways to modify the project that may be fun:
-\begin{itemize}
-    \item The smartcab's world may not be toroidal. In this setting, an action that would take the smartcab away from the grid may be ignored - or it may cause an accident, with the immediate failure to reach the deadline (and a heavy penalty!).
-    \item Obstacles may be added to the grid world, so that the agent is unable to occupy certain positions. This would turn the grid into a maze, with the planner learning little by little the best ways around the walls.
-\end{itemize}
+A more prosaic improvement of the project would be leveraging modular arithmetic to write cleaner versions of the planner world's \texttt{get\_delta()} method and the perfect planner's \texttt{policy()} method, both of which seem to me unnecessary long and convoluted.
 \end{document}
